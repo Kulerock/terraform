@@ -15,6 +15,9 @@ echo "<h2>WebServer with IP: $myip</h2><br>Build by Terraform" > /var/www/html/i
 sudo service httpd start
 chkconfig httpd on
 EOF
+  metadata_options {
+    http_tokens = "optional"
+  }
 
   tags = {
     Name    = "first_instance"
