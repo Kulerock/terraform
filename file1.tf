@@ -3,18 +3,10 @@ provider "aws" {
 }
 
 resource "aws_instance" "terraform_lesson" {
-  ami           = "ami-097c5c21a18dc59ea"
-  instance_type = "t3.micro"
+  ami                    = "ami-097c5c21a18dc59ea"
+  instance_type          = "t3.micro"
   vpc_security_group_ids = [aws_security_group.first_group.id]
-  user_data = <<EOF
-#!/bin/bash
-yum -y update
-yum -y install httpd
-myip=`curl http://169.254.169.254/latest/meta-data/local-ipv4`
-echo "<h2>WebServer with IP: $myip</h2><br>Build by Terraform" > /var/www/html/index.html
-sudo service httpd start
-chkconfig httpd on
-EOF
+  user_data              = file ("user_data.sh")
   metadata_options {
     http_tokens = "optional"
   }
