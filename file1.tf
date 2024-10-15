@@ -23,21 +23,17 @@ resource "aws_instance" "terraform_lesson" {
 }
 
 resource "aws_security_group" "first_group" {
-  name        = "WebServer Security Group"
+  name        = "Dynamic Security Group"
   description = "Allow SSH inbound traffic"
   
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+  dynamic "ingress" {
+    for_each = ["80", "443", "8080", "1541", "9092"]
+    content {
+      from_port   = ingress.value
+      to_port     = ingress.value
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
   }
 
   egress {
@@ -46,6 +42,7 @@ resource "aws_security_group" "first_group" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
-
+  tags = {
+    Name    = "Dynamic Security Group"
+  }
 }
