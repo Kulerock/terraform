@@ -29,18 +29,18 @@ resource "aws_security_group" "first_group" {
   }
 }
 
-resource "aws_launch_configuration" "web" {
-  name            = "WebServer-Highly-Available"
-  image_id        = "ami-097c5c21a18dc59ea"
-  instance_type   = "t3.micro"
-  security_groups = [aws_security_group.first_group.id]
-  user_data       = file("user_data.sh.tpl")
-#   ,{
-#      f_name               = "Kate",
-#      l_name               = "Kulikovich",
-#      names                = ["Vasya","Kolya","Petya","Masha"]
-#    })
+resource "aws_launch_template" "web" {
+  name          = "WebServer-Highly-Available"
+  image_id      = "ami-097c5c21a18dc59ea"
+  instance_type = "t3.micro"
 
+  network_interfaces {
+    security_groups             = [aws_security_group.first_group.id]
+    associate_public_ip_address = true
+  }
+
+  user_data = file("user_data.sh.tpl")
+  
   lifecycle {
     create_before_destroy = true
   }
@@ -48,7 +48,6 @@ resource "aws_launch_configuration" "web" {
 
 resource "aws_autoscaling_group" "web" {
   name                      = "WebServer-Highly-Available-ASG"
-  launch_configuration      = aws_launch_configuration.web.name
   max_size                  = 1
   min_size                  = 1
   min_elb_capacity          = 1
@@ -57,7 +56,12 @@ resource "aws_autoscaling_group" "web" {
   desired_capacity          = 1
 
   vpc_zone_identifier      = [aws_default_subnet.default_az1.id, aws_default_subnet.default_az2.id]
-  load_balancers           = [aws_elb.web.name]
+  load_balancers           = [aws_elb.web.id]
+
+  launch_template {
+    id      = aws_launch_template.web.id
+    version = "$Latest"
+  }
 
   dynamic "tag" {
     for_each = {
@@ -71,6 +75,7 @@ resource "aws_autoscaling_group" "web" {
       propagate_at_launch = true  
     }
   }
+
   lifecycle {
     create_before_destroy = true
   }
@@ -87,6 +92,7 @@ resource "aws_elb" "web" {
     instance_port     = 80
     instance_protocol = "http"
   }
+
   health_check {
     healthy_threshold   = 2
     unhealthy_threshold = 2
@@ -94,18 +100,19 @@ resource "aws_elb" "web" {
     target              = "HTTP:80/"
     interval            = 10
   } 
-    tags = {
-      Name = "WebServer-Highly-Available-ELB"
+
+  tags = {
+    Name = "WebServer-Highly-Available-ELB"
   }
 }
 
-  resource "aws_default_subnet" "default_az1" {
-    availability_zone = data.aws_availability_zones.available.names[0]
-  }
+resource "aws_default_subnet" "default_az1" {
+  availability_zone = data.aws_availability_zones.available.names[0]
+}
 
-  resource "aws_default_subnet" "default_az2" {
-    availability_zone = data.aws_availability_zones.available.names[1]
-  }
+resource "aws_default_subnet" "default_az2" {
+  availability_zone = data.aws_availability_zones.available.names[1]
+}
 
 output "web_loadbalancer_url" {
   value = aws_elb.web.dns_name
