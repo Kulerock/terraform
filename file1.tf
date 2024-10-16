@@ -34,7 +34,7 @@ resource "aws_launch_configuration" "web" {
   image_id        = "ami-097c5c21a18dc59ea"
   instance_type   = "t3.micro"
   security_groups = [aws_security_group.first_group.id]
-  user_data       = file("user_data.sh.tlp")
+  user_data       = file("user_data.sh.tpl")
 #   ,{
 #      f_name               = "Kate",
 #      l_name               = "Kulikovich",
