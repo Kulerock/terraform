@@ -39,7 +39,7 @@ resource "aws_launch_template" "web" {
     associate_public_ip_address = true
   }
 
-  user_data = file("user_data.sh.tpl")
+  user_data = base64encode(file("user_data.sh.tpl"))
   
   lifecycle {
     create_before_destroy = true
