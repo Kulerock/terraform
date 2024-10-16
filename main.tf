@@ -3,11 +3,18 @@ provider "aws" {
 }
 
 data "aws_availability_zones" "available" {}
+data "aws_vpc" "selected" {
+  id = var.vpc_id
+}
+
+
+
 
 resource "aws_security_group" "first_group" {
   name        = "Dynamic Security Group"
   description = "Allow SSH inbound traffic"
-  
+  vpc_id      = var.vpc_id
+
   dynamic "ingress" {
     for_each = var.allow_ports
     content {
@@ -59,7 +66,7 @@ resource "aws_autoscaling_group" "web" {
   health_check_type         = "ELB"
   desired_capacity          = 1
 
-  vpc_zone_identifier      = [aws_default_subnet.default_az1.id, aws_default_subnet.default_az2.id]
+  availability_zones       = var.subnets_id
   load_balancers           = [aws_elb.web.id]
 
   launch_template {
@@ -108,14 +115,6 @@ resource "aws_elb" "web" {
   tags = {
     Name = "WebServer-Highly-Available-ELB"
   }
-}
-
-resource "aws_default_subnet" "default_az1" {
-  availability_zone = data.aws_availability_zones.available.names[0]
-}
-
-resource "aws_default_subnet" "default_az2" {
-  availability_zone = data.aws_availability_zones.available.names[1]
 }
 
 output "web_loadbalancer_url" {
