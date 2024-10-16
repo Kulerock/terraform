@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "eu-north-1"
+  region = var.region
 }
 
 data "aws_availability_zones" "available" {}
@@ -9,7 +9,7 @@ resource "aws_security_group" "first_group" {
   description = "Allow SSH inbound traffic"
   
   dynamic "ingress" {
-    for_each = ["80", "443"]
+    for_each = var.allow_ports
     content {
       from_port   = ingress.value
       to_port     = ingress.value
@@ -32,7 +32,7 @@ resource "aws_security_group" "first_group" {
 resource "aws_launch_template" "web" {
   name          = "WebServer-Highly-Available"
   image_id      = "ami-097c5c21a18dc59ea"
-  instance_type = "t3.micro"
+  instance_type = var.instance_type
 
   network_interfaces {
     security_groups             = [aws_security_group.first_group.id]
