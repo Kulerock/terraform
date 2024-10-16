@@ -18,9 +18,8 @@ variable "vpc_id" {
   default     = "vpc-04638fa44d53e81de" 
 }
 
-variable "subnets_id" {
-  type        = list
-  default     = ["subnet-0033d5cc4ff06208c", "subnet-01c0d6e07209094ca", "subnet-03282908de6da2cc6"]
+variable "key_pair" {
+  default     = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIV98DkEK9IyCG9AqRBvhguNKKniqouWNfk2S6keGsPY kulerock@ubuntu"
 }
 
 # variable "common_tags" {
@@ -30,3 +29,8 @@ variable "subnets_id" {
 
 #   }
 # }
+
+#variable "subnets_id" {
+  #type        = list
+  #default     = ["subnet-0033d5cc4ff06208c", "subnet-01c0d6e07209094ca", "subnet-03282908de6da2cc6"]
+#}

@@ -7,6 +7,11 @@ data "aws_vpc" "selected" {
   id = var.vpc_id
 }
 
+resource "aws_key_pair" "deployer" {
+  key_name   = "deployer-key"
+  public_key = var.key_pair
+}
+
 resource "aws_security_group" "first_group" {
   name        = "Dynamic Security Group"
   description = "Allow SSH inbound traffic"
@@ -37,6 +42,7 @@ resource "aws_launch_template" "web" {
   name          = "WebServer-Highly-Available"
   image_id      = "ami-097c5c21a18dc59ea"
   instance_type = var.instance_type
+  key_name      = "deployer-key"
 
   network_interfaces {
     security_groups             = [aws_security_group.first_group.id]
