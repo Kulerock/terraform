@@ -34,11 +34,12 @@ resource "aws_launch_configuration" "web" {
   image_id        = "ami-097c5c21a18dc59ea"
   instance_type   = "t3.micro"
   security_groups = [aws_security_group.first_group.id]
-  user_data       = file("user_data.sh.tlp",{
-     f_name               = "Kate",
-     l_name               = "Kulikovich",
-     names                = ["Vasya","Kolya","Petya","Masha"]
-   })
+  user_data       = file("user_data.sh.tlp")
+#   ,{
+#      f_name               = "Kate",
+#      l_name               = "Kulikovich",
+#      names                = ["Vasya","Kolya","Petya","Masha"]
+#    })
 
   lifecycle {
     create_before_destroy = true
