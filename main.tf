@@ -7,9 +7,6 @@ data "aws_vpc" "selected" {
   id = var.vpc_id
 }
 
-
-
-
 resource "aws_security_group" "first_group" {
   name        = "Dynamic Security Group"
   description = "Allow SSH inbound traffic"
@@ -118,15 +115,11 @@ resource "aws_elb" "web" {
 }
 
 resource "aws_default_subnet" "default_az1" {
-  vpc_id            = data.aws_vpc.selected.id
   availability_zone = data.aws_availability_zones.available.names[0]
-  cidr_block        = cidrsubnet(data.aws_vpc.selected.cidr_block, 4, 1)
 }
 
 resource "aws_default_subnet" "default_az2" {
-  vpc_id            = data.aws_vpc.selected.id
   availability_zone = data.aws_availability_zones.available.names[1]
-  cidr_block        = cidrsubnet(data.aws_vpc.selected.cidr_block, 4, 1)
 }
 
 output "web_loadbalancer_url" {
