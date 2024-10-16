@@ -66,7 +66,7 @@ resource "aws_autoscaling_group" "web" {
   health_check_type         = "ELB"
   desired_capacity          = 1
 
-  availability_zones       = var.subnets_id
+  vpc_zone_identifier      = [aws_default_subnet.default_az1.id, aws_default_subnet.default_az2.id]
   load_balancers           = [aws_elb.web.id]
 
   launch_template {
@@ -115,6 +115,18 @@ resource "aws_elb" "web" {
   tags = {
     Name = "WebServer-Highly-Available-ELB"
   }
+}
+
+resource "aws_default_subnet" "default_az1" {
+  vpc_id            = data.aws_vpc.selected.id
+  availability_zone = data.aws_availability_zones.available.names[0]
+  cidr_block        = cidrsubnet(data.aws_vpc.selected.cidr_block, 4, 1)
+}
+
+resource "aws_default_subnet" "default_az2" {
+  vpc_id            = data.aws_vpc.selected.id
+  availability_zone = data.aws_availability_zones.available.names[1]
+  cidr_block        = cidrsubnet(data.aws_vpc.selected.cidr_block, 4, 1)
 }
 
 output "web_loadbalancer_url" {
